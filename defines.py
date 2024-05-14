@@ -1,5 +1,6 @@
+from datetime import datetime
 from typing import List
-from sqlalchemy import String, Integer, Float, inspect
+from sqlalchemy import String, Integer, Float
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -70,3 +71,22 @@ Tables = {
     "YI": YIHackInfo,
     "SM64": SM64HackInfo
 }
+
+
+hack_difficulties = [
+    "Standard: Easy",
+    "Standard: Normal",
+    "Standard: Hard",
+    "Standard: Very Hard",
+    "Kaizo: Beginner",
+    "Kaizo: Intermediate",
+    "Kaizo: Expert",
+    "Tool-Assisted: Kaizo",
+    "Tool-Assisted: Pit",
+    "Misc.: Troll"
+]
+hack_categories = ["Standard", "Kaizo", "Tool-Assisted", "Misc."]
+standard_difficulties = ["Easy", "Normal", "Hard", "Very Hard"]
+kaizo_difficulties = ["Beginner", "Intermediate", "Expert"]
+tool_assisted_difficulties = ["Kaizo", "Pit"]
+misc_difficulties = ["Troll"]
