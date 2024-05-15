@@ -2,7 +2,6 @@ import dearpygui.dearpygui as dpg
 import defines
 from datetime import datetime
 from datetime_to_dict import datetime_to_dict
-import database
 
 listbox_difficulty_data = []
 current_date = datetime.now().astimezone()
@@ -10,7 +9,7 @@ current_time_zone = f"{current_date.isoformat()[-6:]} UTC"
 modified_items = []
 
 dpg.create_context()
-dpg.create_viewport(title="SMW Central Search", width=950, height=600)
+dpg.create_viewport(title="SMW Central Search", width=925, height=475, resizable=False)
 dpg.setup_dearpygui()
 
 
