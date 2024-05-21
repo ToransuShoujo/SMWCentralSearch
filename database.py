@@ -7,7 +7,7 @@ defines.Base.metadata.create_all(engine)
 
 
 def insert_smw_hacks(hacks):
-    if type(hacks) is list:
+    if type(hacks) is list and len(hacks) > 0:
         for hack in hacks:
             hacks_to_insert = []
             with Session(engine) as session:
@@ -36,4 +36,18 @@ def get_most_recent_hack(game="SMW"):
     query = select(table.id).order_by(table.id.desc())
     with Session(engine) as session:
         row = session.execute(query).first()
-        return row[0]
+        if row is None:
+            return 0
+        else:
+            return row[0]
+
+
+def get_hack(hack_id, game="SMW"):
+    table = defines.Tables[game]
+    query = select(table).where(table.id == int(hack_id))
+    with Session(engine) as session:
+        row = session.execute(query).first()
+        if row is None:
+            return None
+        else:
+            return row[0]
