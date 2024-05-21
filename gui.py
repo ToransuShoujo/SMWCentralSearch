@@ -1,16 +1,13 @@
 import dearpygui.dearpygui as dpg
 import defines
 from datetime import datetime
-from datetime_to_dict import datetime_to_dict
+from datetime_management import datetime_to_dict
 
 listbox_difficulty_data = []
 current_date = datetime.now().astimezone()
 current_time_zone = f"{current_date.isoformat()[-6:]} UTC"
 modified_items = []
-
 dpg.create_context()
-dpg.create_viewport(title="SMW Central Search", width=925, height=475, resizable=False)
-dpg.setup_dearpygui()
 
 
 def listbox_difficulty_callback(sender, app_data):
@@ -25,8 +22,12 @@ def listbox_difficulty_callback(sender, app_data):
     return
 
 
-def btn_search_callback(sender):
-    return
+def btn_search_callback():
+    search_dict = {}
+    for tag in modified_items:
+        search_dict[tag] = dpg.get_value(tag)
+    print(search_dict)
+    return search_dict
 
 
 def btn_reset_callback():
@@ -55,8 +56,8 @@ def btn_reset_callback():
 def item_modified_callback(sender):
     if sender not in modified_items:
         modified_items.append(sender)
-    if sender == "combo_difficulty" and "combo_category" not in modified_items:
-        modified_items.append("combo_category")
+    if sender == "combo-difficulty" and "combo-category" not in modified_items:
+        modified_items.append("combo-category")
     return
 
 
@@ -87,53 +88,57 @@ with dpg.theme() as button_normal_theme:
     with dpg.theme_component(dpg.mvButton):
         dpg.add_theme_color(dpg.mvThemeCol_Button, (51, 51, 55, 255))
 
+
 def create_main_window():
+    dpg.create_viewport(title="SMW Central Search", width=925, height=475, resizable=False)
+    dpg.setup_dearpygui()
+
     with dpg.window(tag="Primary Window"):
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Hack title:  ")
-            dpg.add_input_text(tag="txt_title", width=400)
-            dpg.add_checkbox(label="Exact match", tag="bool_title_exact_match", default_value=True)
-            dpg.add_checkbox(label="Regex", tag="bool_title_regex")
+            dpg.add_input_text(tag="txt-title", width=400)
+            dpg.add_checkbox(label="Exact match", tag="bool-title-exact_match", default_value=True)
+            dpg.add_checkbox(label="Regex", tag="bool-title-regex")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Hack authors:")
-            dpg.add_input_text(tag="txt_authors", width=400, hint="Comma separated list of authors")
-            dpg.add_checkbox(label="Exact match", tag="bool_authors_exact_match", default_value=True)
-            dpg.add_checkbox(label="Regex", tag="bool_authors_regex")
+            dpg.add_input_text(tag="txt-authors", width=400, hint="Comma separated list of authors")
+            dpg.add_checkbox(label="Exact match", tag="bool-authors-exact_match", default_value=True)
+            dpg.add_checkbox(label="Regex", tag="bool-authors-regex")
             dpg.add_checkbox(label="Search individually", tag="bool_authors_individually")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Difficulty:  ")
             with dpg.child_window(height=120, width=400, border=False) as custom_listbox:
                 for difficulty in defines.hack_difficulties:
-                    tag_difficulty = "listbox_" + difficulty.replace(" ", "_").replace(":", "").lower()
+                    tag_difficulty = "listbox-" + difficulty.replace(" ", "_").replace(":", "").lower()
                     dpg.add_button(label=difficulty, tag=tag_difficulty, width=-1, callback=listbox_difficulty_callback)
                 dpg.bind_item_theme(custom_listbox, custom_listbox_theme)
-            dpg.add_checkbox(label="Search individually", tag="bool_difficulties_individually")
+            dpg.add_checkbox(label="Search individually", tag="bool-difficulties-individually")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Extras:      ")
-            dpg.add_checkbox(label="Demo?", tag="bool_demo")
-            dpg.add_checkbox(label="Hall of fame?", tag="bool_hall_of_fame")
+            dpg.add_checkbox(label="Demo?", tag="bool-demo")
+            dpg.add_checkbox(label="Hall of fame?", tag="bool-hall_of_fame")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Date before: ")
-            dpg.add_date_picker(tag="date_before", default_value=datetime_to_dict(current_date))
+            dpg.add_date_picker(tag="date-before", default_value=datetime_to_dict(current_date))
             dpg.add_text("Date after: ")
-            dpg.add_date_picker(tag="date_after", default_value=datetime_to_dict(current_date))
+            dpg.add_date_picker(tag="date-after", default_value=datetime_to_dict(current_date))
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Time before: ")
-            dpg.add_input_text(tag="txt_time_before", width=200, hint="14:51:00", no_spaces=True)
+            dpg.add_input_text(tag="txt-time-before", width=200, hint="14:51:00", no_spaces=True)
             dpg.add_text(current_time_zone)
-            dpg.add_radio_button(items=("Submitted", "Accepted"), horizontal=True, tag="radio_time_before",
+            dpg.add_radio_button(items=("Submitted", "Accepted"), horizontal=True, tag="radio-time-before",
                                      default_value="Accepted")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Time after:  ")
-            dpg.add_input_text(tag="txt_time_after", width=200, hint="12:24:00", no_spaces=True)
+            dpg.add_input_text(tag="txt-time-after", width=200, hint="12:24:00", no_spaces=True)
             dpg.add_text(current_time_zone)
-            dpg.add_radio_button(items=("Submitted", "Accepted"), horizontal=True, tag="radio_time_after",
+            dpg.add_radio_button(items=("Submitted", "Accepted"), horizontal=True, tag="radio-time-after",
                                  default_value="Accepted")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
@@ -143,3 +148,21 @@ def create_main_window():
     set_item_callbacks()
     dpg.show_viewport()
     dpg.set_primary_window("Primary Window", True)
+
+
+def create_prep_window():
+    with dpg.window(tag="win_prep", width=800, height=300):
+        with dpg.table(header_row=False):
+            for i in range(0, 5):
+                dpg.add_table_column()
+            for i in range(0, 7):
+                with dpg.table_row():
+                    for j in range(0, 5):
+                        if i == 3 and j == 2:
+                            dpg.add_text("Preparing, please wait...")
+                        else:
+                            dpg.add_text("            ")
+
+
+def create_results_window():
+    return
