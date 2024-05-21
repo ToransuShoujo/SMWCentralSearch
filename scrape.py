@@ -3,17 +3,16 @@ import database
 import requests
 from bs4 import BeautifulSoup
 import re
-from datetime import datetime, timezone
-import pytz
+
+from datetime_management import convert_to_timestamp
 
 smwc_url = "https://smwcentral.net"
+blank_db = False
 
 
 def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
     hack_list = []
     most_recent_hack = database.get_most_recent_hack()
-    if most_recent_hack is None:
-        most_recent_hack = 0
     if game not in defines.Games:
         raise Exception("Invalid game specified in scrape.py")
     request_parameters = {
@@ -25,6 +24,7 @@ def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
     smwc_page = requests.get(smwc_url, request_parameters)
     smwc_soup = BeautifulSoup(smwc_page.text, "html.parser")
     base_hack_data = smwc_soup.find_all("td", {"class": "text"})  # Get the table containing hacks
+    latest_hack = database.get_most_recent_hack()
     for hack_data in base_hack_data:
         hack = defines.SMWHackInfo()
         # TODO: Add support for non-SMW titles
@@ -34,9 +34,8 @@ def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
         secondary_info = hack_data.find_next_siblings("td")  # Secondary info includes everything else
         if not secondary_info:
             raise Exception("Could not get secondary hack information. Try again later.")
-
         hack.id = re.findall('[0-9]+', basic_info['href'])[0]
-        if int(hack.id) <= most_recent_hack:
+        if int(hack.id) <= latest_hack:
             break
         hack.title = basic_info.text
         print(f"Getting information for hack {hack.title}")
@@ -94,19 +93,3 @@ def get_hack_dates(hack_id):
 
     return submission_list, approval_list
 
-
-def convert_to_timestamp(unformatted_time, time_type):
-    if time_type == "smwc":
-        smwc_time_naive = datetime.strptime(unformatted_time, "%Y-%m-%d %H:%M:%S %p")
-        smwc_time_aware = smwc_time_naive.replace(tzinfo=datetime.now(timezone.utc).astimezone().tzinfo)
-        smwc_time_utc = smwc_time_aware.replace(tzinfo=pytz.UTC)
-        smwc_timestamp = smwc_time_utc.timestamp()
-        return smwc_timestamp
-    elif time_type == "cloudflare":
-        cloudflare_time_naive = datetime.strptime(unformatted_time, "%a, %d %b %Y %H:%M:%S GMT")
-        cloudflare_time_aware = cloudflare_time_naive.replace(tzinfo=pytz.timezone('GMT'))
-        cloudflare_time_utc = cloudflare_time_aware.replace(tzinfo=pytz.UTC)
-        cloudflare_timestamp = cloudflare_time_utc.timestamp()
-        return cloudflare_timestamp
-    else:
-        raise Exception("Unknown time passed to convert_to_timestamp function.\nValid types: smwc, cloudflare")
