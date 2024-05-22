@@ -59,6 +59,8 @@ def search_hack(search_dict, game="SMW"):
     table = defines.Tables[game]
     query = select(table)
     difficulties = []
+    results_list = []
+
     for key in search_dict.keys():
         value = search_dict.get(key)
         if key == 'txt-title':
@@ -117,6 +119,6 @@ def search_hack(search_dict, game="SMW"):
             query = query.where(table.difficulty.like(difficulty))
     print(str(query))
     with Session(engine) as session:
-        rows = session.execute(query)
-        for row in rows:
-            print(str(row))
+        for row in session.execute(query).all():
+            results_list.append(row._mapping.get('SMWHackInfo'))
+        return results_list

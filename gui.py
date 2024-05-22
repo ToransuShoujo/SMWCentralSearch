@@ -29,8 +29,9 @@ def btn_search_callback():
     for tag in modified_items:
         search_dict[tag] = dpg.get_value(tag)
     print(search_dict)
-    database.search_hack(search_dict)
+    create_results_window(database.search_hack(search_dict))
     return
+
 
 def btn_reset_callback():
     for tag in modified_items:
@@ -76,6 +77,10 @@ def set_item_callbacks():
             continue
         if dpg.get_item_configuration(item_id)["callback"] is None:
             dpg.set_item_callback(item=item_tag, callback=item_modified_callback)
+
+
+def window_closed_callback(sender):
+    dpg.delete_item(sender)
 
 
 # Custom listbox code provided by bandit-masked on GitHub
@@ -136,7 +141,7 @@ def create_main_window():
             dpg.add_input_text(tag="txt-time-before", width=200, hint="14:51:00", no_spaces=True)
             dpg.add_text(current_time_zone)
             dpg.add_radio_button(items=("Submitted", "Accepted"), horizontal=True, tag="radio-time-before",
-                                     default_value="Accepted")
+                                 default_value="Accepted")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Time after:  ")
@@ -168,5 +173,32 @@ def create_prep_window():
                             dpg.add_text("            ")
 
 
-def create_results_window():
+def create_results_window(results_list):
+    with dpg.window(tag="win_results", width=800, height=300, on_close=window_closed_callback):
+        with dpg.table(header_row=True):
+            for i in range(0, 9):
+                dpg.add_table_column()
+            if len(results_list) > 0:
+                for i in range(0, len(results_list)):
+                    with dpg.table_row():
+                        for j in range(0, 9):
+                            if j == 0:
+                                dpg.add_text(results_list[i].id)
+                            elif j == 1:
+                                dpg.add_text(results_list[i].title)
+                            elif j == 2:
+                                dpg.add_text(results_list[i].authors)
+                            elif j == 3:
+                                dpg.add_text(results_list[i].difficulty)
+                            elif j == 4:
+                                dpg.add_text(results_list[i].exits)
+                            elif j == 5:
+                                dpg.add_text(results_list[i].demo)
+                            elif j == 6:
+                                dpg.add_text(results_list[i].hall_of_fame)
+                            elif j == 7:
+                                dpg.add_text(results_list[i].submissions)
+                            elif j == 8:
+                                dpg.add_text(results_list[i].acceptances)
+
     return
