@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, select, text, column
 from sqlalchemy.orm import Session
+
+import datetime_management
 import defines
 
 engine = create_engine('sqlite:///smw_central.db', echo=True)
@@ -51,3 +53,70 @@ def get_hack(hack_id, game="SMW"):
             return None
         else:
             return row[0]
+
+
+def search_hack(search_dict, game="SMW"):
+    table = defines.Tables[game]
+    query = select(table)
+    difficulties = []
+    for key in search_dict.keys():
+        value = search_dict.get(key)
+        if key == 'txt-title':
+            title_query = value
+            # Default is False, so we test for True
+            if search_dict.get('bool-title-regex') is not None:
+                query = query.where(table.title.regexp_match(title_query))
+                continue
+            # Default is True, so we test for False.
+            elif search_dict.get('bool-title-exact_match') is not None:
+                title_query = f'%{title_query}%'
+            query = query.where(table.title.like(title_query))
+        elif key == 'txt-authors':
+            authors_query = value
+            # Default is False, so we test for True
+            if search_dict.get('bool-authors-regex') is not None:
+                query = query.where(table.authors.regexp_match(authors_query))
+                continue
+            # Default is False, so we test for True
+            if search_dict.get('bool-authors-individually') is not None:
+                if ', ' in authors_query:
+                    authors_query = authors_query.replace(', ', ',')
+                authors_query = authors_query.split(',')
+            # Default is True, so we test for False
+            elif search_dict.get('bool-authors-exact_match') is not None:
+                authors_query = [f'%{author}%' for author in authors_query]
+            for author in authors_query:
+                query = query.where(table.authors.like(author))
+        elif key.startswith('listbox'):
+            difficulty = key[8:]
+            difficulties.append(difficulty)
+        elif key == 'bool-demo':
+            query = query.where(table.demo == 1)
+        elif key == 'bool-hall_of_fame':
+            query = query.where(table.hall_of_fame == 1)
+        elif key.startswith('date'):
+            date_property = key.split('-')[1]
+            time = search_dict.get(f'txt-time-{date_property}')
+            search_type = search_dict.get(f'radio-time-{date_property}')
+            datetime = datetime_management.dict_to_datetime(value, time)
+            timestamp = datetime_management.convert_to_timestamp(datetime, "datetime")
+            if date_property == 'before':
+                # Default is Accepted, so we test for Submitted
+                if search_type is not None:
+                    query = query.filter(table.earliest_submission < timestamp)
+                else:
+                    query = query.filter(table.earliest_acceptance < timestamp)
+            else:
+                if search_type is not None:
+                    query = query.filter(table.earliest_submission > timestamp)
+                else:
+                    query = query.filter(table.earliest_acceptance > timestamp)
+    if len(difficulties) > 0:
+        for difficulty in difficulties:
+            difficulty = f'%{defines.difficulty_lookup[difficulty]}%'
+            query = query.where(table.difficulty.like(difficulty))
+    print(str(query))
+    with Session(engine) as session:
+        rows = session.execute(query)
+        for row in rows:
+            print(str(row))

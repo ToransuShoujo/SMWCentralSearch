@@ -20,6 +20,8 @@ def datetime_to_dict(date):
 
 def dict_to_datetime(dictionary, time="00:00:00"):
     date = datetime(dictionary.get('year') + 1900, dictionary.get('month') + 1, dictionary.get('month_day'))
+    if time is None:
+        time = "00:00:00"
     time = time.split(':')
     print(f"{time[0]}:{time[1]}:{time[2]}")
     date = date.replace(hour=int(time[0]), minute=int(time[1]), second=int(time[2]))

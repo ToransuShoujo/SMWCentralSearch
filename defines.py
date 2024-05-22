@@ -9,8 +9,11 @@ class Base(DeclarativeBase):
 
 
 class SMWHackInfo(Base):
+    def __repr__(self):
+        return f"SMWHackInfo('{self}')"
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
     __tablename__ = 'smwhacks'
-
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String())
     authors: Mapped[List[str]] = mapped_column(String())
@@ -85,8 +88,16 @@ hack_difficulties = [
     "Tool-Assisted: Pit",
     "Misc.: Troll"
 ]
-hack_categories = ["Standard", "Kaizo", "Tool-Assisted", "Misc."]
-standard_difficulties = ["Easy", "Normal", "Hard", "Very Hard"]
-kaizo_difficulties = ["Beginner", "Intermediate", "Expert"]
-tool_assisted_difficulties = ["Kaizo", "Pit"]
-misc_difficulties = ["Troll"]
+
+difficulty_lookup = {
+    "standard_easy": hack_difficulties[0],
+    "standard_normal": hack_difficulties[1],
+    "standard_hard": hack_difficulties[2],
+    "standard_very_hard": hack_difficulties[3],
+    "kaizo_beginner": hack_difficulties[4],
+    "kaizo_intermediate": hack_difficulties[5],
+    "kaizo_expert": hack_difficulties[6],
+    "tool-assisted_kaizo": hack_difficulties[7],
+    "tool-assisted_pit": hack_difficulties[8],
+    "misc._troll": hack_difficulties[9]
+}

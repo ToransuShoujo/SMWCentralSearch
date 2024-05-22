@@ -1,4 +1,6 @@
 import dearpygui.dearpygui as dpg
+
+import database
 import defines
 from datetime import datetime
 from datetime_management import datetime_to_dict
@@ -27,8 +29,8 @@ def btn_search_callback():
     for tag in modified_items:
         search_dict[tag] = dpg.get_value(tag)
     print(search_dict)
-    return search_dict
-
+    database.search_hack(search_dict)
+    return
 
 def btn_reset_callback():
     for tag in modified_items:
@@ -56,6 +58,8 @@ def btn_reset_callback():
 def item_modified_callback(sender):
     if sender not in modified_items:
         modified_items.append(sender)
+    elif sender.startswith('listbox') or sender.startswith('bool') or sender.startswith('radio'):
+        modified_items.remove(sender)
     if sender == "combo-difficulty" and "combo-category" not in modified_items:
         modified_items.append("combo-category")
     return
@@ -105,7 +109,7 @@ def create_main_window():
             dpg.add_input_text(tag="txt-authors", width=400, hint="Comma separated list of authors")
             dpg.add_checkbox(label="Exact match", tag="bool-authors-exact_match", default_value=True)
             dpg.add_checkbox(label="Regex", tag="bool-authors-regex")
-            dpg.add_checkbox(label="Search individually", tag="bool_authors_individually")
+            dpg.add_checkbox(label="Search individually", tag="bool-authors-individually")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Difficulty:  ")
