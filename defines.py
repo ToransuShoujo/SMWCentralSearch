@@ -11,8 +11,10 @@ class Base(DeclarativeBase):
 class SMWHackInfo(Base):
     def __repr__(self):
         return f"SMWHackInfo('{self}')"
+
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
+
     __tablename__ = 'smwhacks'
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String())
