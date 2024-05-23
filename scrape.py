@@ -12,7 +12,6 @@ blank_db = False
 
 def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
     hack_list = []
-    most_recent_hack = database.get_most_recent_hack()
     if game not in defines.Games:
         raise Exception("Invalid game specified in scrape.py")
     request_parameters = {
@@ -35,7 +34,7 @@ def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
         if not secondary_info:
             raise Exception("Could not get secondary hack information. Try again later.")
         hack.id = re.findall('[0-9]+', basic_info['href'])[0]
-        if int(hack.id) <= latest_hack:
+        if database.get_hack(hack.id) is not None:
             break
         hack.title = basic_info.text
         print(f"Getting information for hack {hack.title}")
