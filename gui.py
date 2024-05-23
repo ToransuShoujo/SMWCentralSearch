@@ -99,7 +99,7 @@ with dpg.theme() as button_normal_theme:
 
 
 def create_main_window():
-    dpg.create_viewport(title="SMW Central Search", width=925, height=475, resizable=False)
+    dpg.create_viewport(title="SMW Central Search", width=1000, height=550, resizable=True)
     dpg.setup_dearpygui()
 
     with dpg.window(tag="Primary Window"):
@@ -112,9 +112,7 @@ def create_main_window():
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Hack authors:")
             dpg.add_input_text(tag="txt-authors", width=400, hint="Comma separated list of authors")
-            dpg.add_checkbox(label="Exact match", tag="bool-authors-exact_match", default_value=True)
             dpg.add_checkbox(label="Regex", tag="bool-authors-regex")
-            dpg.add_checkbox(label="Search individually", tag="bool-authors-individually")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Difficulty:  ")
@@ -123,10 +121,10 @@ def create_main_window():
                     tag_difficulty = "listbox-" + difficulty.replace(" ", "_").replace(":", "").lower()
                     dpg.add_button(label=difficulty, tag=tag_difficulty, width=-1, callback=listbox_difficulty_callback)
                 dpg.bind_item_theme(custom_listbox, custom_listbox_theme)
-            dpg.add_checkbox(label="Search individually", tag="bool-difficulties-individually")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Extras:      ")
+            dpg.add_input_text(label="Exits", tag="txt-exits", width=100)
             dpg.add_checkbox(label="Demo?", tag="bool-demo")
             dpg.add_checkbox(label="Hall of fame?", tag="bool-hall_of_fame")
 
@@ -174,20 +172,27 @@ def create_prep_window():
 
 
 def create_results_window(results_list):
-    with dpg.window(tag="win_results", width=800, height=300, on_close=window_closed_callback):
-        with dpg.table(header_row=True):
-            for i in range(0, 9):
-                dpg.add_table_column()
+    with dpg.window(tag="win_results", width=983, height=513, pos=[0, 0], on_close=window_closed_callback):
+        with dpg.table(header_row=True, resizable=True, borders_innerV=True, borders_outerV=True,
+                       borders_innerH=True, borders_outerH=True):
+            dpg.add_table_column(label='ID', init_width_or_weight=0.5)
+            dpg.add_table_column(label='Title', init_width_or_weight=3)
+            dpg.add_table_column(label='Author(s)', init_width_or_weight=2)
+            dpg.add_table_column(label='Difficulty', init_width_or_weight=1)
+            dpg.add_table_column(label='Exits', init_width_or_weight=0.25)
+            dpg.add_table_column(label='Demo?', init_width_or_weight=0.25)
+            dpg.add_table_column(label='HoF?', init_width_or_weight=0.25)
             if len(results_list) > 0:
                 for i in range(0, len(results_list)):
                     with dpg.table_row():
-                        for j in range(0, 9):
+                        for j in range(0, 7):
                             if j == 0:
                                 dpg.add_text(results_list[i].id)
                             elif j == 1:
                                 dpg.add_text(results_list[i].title)
                             elif j == 2:
-                                dpg.add_text(results_list[i].authors)
+                                author_list = eval(results_list[i].authors)
+                                dpg.add_text(', '.join(author_list))
                             elif j == 3:
                                 dpg.add_text(results_list[i].difficulty)
                             elif j == 4:
@@ -196,9 +201,4 @@ def create_results_window(results_list):
                                 dpg.add_text(results_list[i].demo)
                             elif j == 6:
                                 dpg.add_text(results_list[i].hall_of_fame)
-                            elif j == 7:
-                                dpg.add_text(results_list[i].submissions)
-                            elif j == 8:
-                                dpg.add_text(results_list[i].acceptances)
-
     return
