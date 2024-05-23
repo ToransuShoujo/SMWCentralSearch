@@ -1,5 +1,4 @@
 import dearpygui.dearpygui as dpg
-
 import database
 import defines
 from datetime import datetime

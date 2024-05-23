@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine, select, text, column, or_
 from sqlalchemy.orm import Session
-
 import datetime_management
 import defines
 
