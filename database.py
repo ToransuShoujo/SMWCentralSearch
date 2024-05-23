@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, text, column
+from sqlalchemy import create_engine, select, text, column, or_
 from sqlalchemy.orm import Session
 
 import datetime_management
@@ -79,19 +79,28 @@ def search_hack(search_dict, game="SMW"):
             if search_dict.get('bool-authors-regex') is not None:
                 query = query.where(table.authors.regexp_match(authors_query))
                 continue
-            # Default is False, so we test for True
-            if search_dict.get('bool-authors-individually') is not None:
-                if ', ' in authors_query:
-                    authors_query = authors_query.replace(', ', ',')
-                authors_query = authors_query.split(',')
-            # Default is True, so we test for False
-            elif search_dict.get('bool-authors-exact_match') is not None:
-                authors_query = [f'%{author}%' for author in authors_query]
+            if ', ' in authors_query:
+                authors_query = authors_query.replace(', ', ',')
+            authors_query = authors_query.split(',')
+            for i in range(0, len(authors_query)):
+                author = f'%{authors_query[i]}%'
+                authors_query.pop(i)
+                authors_query.insert(i, author)
             for author in authors_query:
                 query = query.where(table.authors.like(author))
         elif key.startswith('listbox'):
             difficulty = key[8:]
             difficulties.append(difficulty)
+        elif key == 'txt-exits':
+            exit_operator = value[0]
+            if exit_operator == '>':
+                query = query.where(table.exits > int(value[1:]))
+            elif exit_operator == '<':
+                query = query.where(table.exits < int(value[1:]))
+            elif not exit_operator.isnumeric():
+                query = query.where(table.exits == int(value[1:]))
+            else:
+                query = query.where(table.exits == int(value))
         elif key == 'bool-demo':
             query = query.where(table.demo == 1)
         elif key == 'bool-hall_of_fame':
