@@ -3,7 +3,6 @@ import database
 import scrape
 import gui
 
-
 gui.create_main_window()
 gui.create_prep_window()
 for i in range(0, 6):
