@@ -23,7 +23,6 @@ def scrape_hacks(page=1, total_hacks=0, moderated=True, game="SMW"):
     smwc_page = requests.get(smwc_url, request_parameters)
     smwc_soup = BeautifulSoup(smwc_page.text, "html.parser")
     base_hack_data = smwc_soup.find_all("td", {"class": "text"})  # Get the table containing hacks
-    latest_hack = database.get_most_recent_hack()
     for hack_data in base_hack_data:
         hack = defines.SMWHackInfo()
         # TODO: Add support for non-SMW titles
@@ -92,3 +91,6 @@ def get_hack_dates(hack_id):
 
     return submission_list, approval_list
 
+
+for i in range(1, 47):
+    database.insert_smw_hacks(scrape_hacks(i))
