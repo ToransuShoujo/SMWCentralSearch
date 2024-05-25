@@ -42,7 +42,7 @@ def convert_to_timestamp(unformatted_time, time_type):
     if time_type == "smwc":
         smwc_time_naive = datetime.strptime(unformatted_time, "%Y-%m-%d %H:%M:%S %p")
         if 'PM' in unformatted_time:
-            smwc_time_naive + timedelta(hours=12)
+            smwc_time_naive = smwc_time_naive + timedelta(hours=12)
         smwc_time_aware = smwc_time_naive.replace(tzinfo=pytz.timezone('GMT'))
         smwc_time_utc = smwc_time_aware.astimezone(pytz.UTC)
         smwc_timestamp = smwc_time_utc.timestamp()
@@ -60,3 +60,11 @@ def convert_to_timestamp(unformatted_time, time_type):
         return dt_timestamp
     else:
         raise Exception("Unknown time passed to convert_to_timestamp function.\nValid types: smwc, cloudflare")
+
+
+def timestamp_to_readable(timestamp):
+    current_tzinfo = datetime.now().astimezone().tzinfo
+
+    timestamp_datetime = datetime.fromtimestamp(timestamp)
+    datetime_aware = timestamp_datetime.astimezone(current_tzinfo)
+    return datetime_aware.strftime("%Y-%m-%d %H:%M:%S")
