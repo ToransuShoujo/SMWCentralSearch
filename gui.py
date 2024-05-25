@@ -1,7 +1,10 @@
 import dearpygui.dearpygui as dpg
 import database
+import datetime_management
 import defines
 from datetime import datetime
+
+import export_csv
 from datetime_management import datetime_to_dict
 
 listbox_difficulty_data = []
@@ -9,6 +12,7 @@ current_date = datetime.now().astimezone()
 current_time_zone = f"{current_date.isoformat()[-6:]} UTC"
 modified_items = []
 dpg.create_context()
+last_search_info = None
 
 
 def listbox_difficulty_callback(sender, app_data):
@@ -80,6 +84,12 @@ def set_item_callbacks():
 
 def window_closed_callback(sender):
     dpg.delete_item(sender)
+
+
+def btn_export_csv_callback():
+    export_csv.export_to_csv()
+    print("CSV exported.")
+    return
 
 
 # Custom listbox code provided by bandit-masked on GitHub
@@ -171,6 +181,9 @@ def create_prep_window():
 
 
 def create_results_window(results_list):
+    global last_search_info
+    last_search_info = results_list
+
     with dpg.window(tag="win_results", width=983, height=513, pos=[0, 0], on_close=window_closed_callback):
         with dpg.table(header_row=True, resizable=True, borders_innerV=True, borders_outerV=True,
                        borders_innerH=True, borders_outerH=True):
@@ -179,8 +192,8 @@ def create_results_window(results_list):
             dpg.add_table_column(label='Author(s)', init_width_or_weight=2)
             dpg.add_table_column(label='Difficulty', init_width_or_weight=1)
             dpg.add_table_column(label='Exits', init_width_or_weight=0.25)
-            dpg.add_table_column(label='Demo?', init_width_or_weight=0.25)
-            dpg.add_table_column(label='HoF?', init_width_or_weight=0.25)
+            dpg.add_table_column(label='First Submitted', init_width_or_weight=2)
+            dpg.add_table_column(label='First Accepted', init_width_or_weight=2)
             if len(results_list) > 0:
                 for i in range(0, len(results_list)):
                     with dpg.table_row():
@@ -197,7 +210,10 @@ def create_results_window(results_list):
                             elif j == 4:
                                 dpg.add_text(results_list[i].exits)
                             elif j == 5:
-                                dpg.add_text(results_list[i].demo)
+                                dpg.add_text(datetime_management.timestamp_to_readable(results_list[i]
+                                                                                       .earliest_submission))
                             elif j == 6:
-                                dpg.add_text(results_list[i].hall_of_fame)
+                                dpg.add_text(datetime_management.timestamp_to_readable(results_list[i]
+                                                                                       .earliest_acceptance))
+        dpg.add_button(label='Export to CSV', tag='btn_export_csv', callback=btn_export_csv_callback)
     return
