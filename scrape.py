@@ -90,7 +90,3 @@ def get_hack_dates(hack_id):
         approval_list.append(approval_timestamp)
 
     return submission_list, approval_list
-
-
-for i in range(1, 47):
-    database.insert_smw_hacks(scrape_hacks(i))
