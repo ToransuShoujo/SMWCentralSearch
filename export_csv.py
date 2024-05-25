@@ -7,7 +7,7 @@ def export_to_csv():
     results_list = gui.last_search_info
     if results_list is None or len(results_list) == 0:
         return
-    with open('results.csv', 'w', newline='') as csvfile:
+    with open('results.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(['ID', 'Title', 'Authors', 'Exits', 'Difficulty', 'Submissions', 'Earliest Submission',
                          'Latest Submission', 'Acceptances', 'Earliest Acceptance', 'Latest Acceptance', 'Demo',
