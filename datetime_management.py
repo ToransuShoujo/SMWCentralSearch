@@ -43,7 +43,7 @@ def convert_to_timestamp(unformatted_time, time_type):
         smwc_time_naive = datetime.strptime(unformatted_time, "%Y-%m-%d %H:%M:%S %p")
         if 'PM' in unformatted_time:
             smwc_time_naive + timedelta(hours=12)
-        smwc_time_aware = smwc_time_naive.replace(tzinfo=datetime.now(timezone.utc).astimezone().tzinfo)
+        smwc_time_aware = smwc_time_naive.replace(tzinfo=pytz.timezone('GMT'))
         smwc_time_utc = smwc_time_aware.astimezone(pytz.UTC)
         smwc_timestamp = smwc_time_utc.timestamp()
         return smwc_timestamp
