@@ -20,6 +20,7 @@ class SMWHackInfo(Base):
     authors: Mapped[List[str]] = mapped_column(String())
     exits: Mapped[int] = mapped_column(Integer())
     difficulty: Mapped[str] = mapped_column(String())
+    type: Mapped[str] = mapped_column(String())
     submissions: Mapped[List[str]] = mapped_column(String())
     earliest_submission: Mapped[float] = mapped_column(Float())
     latest_submission: Mapped[float] = mapped_column(Float())
@@ -28,6 +29,8 @@ class SMWHackInfo(Base):
     latest_acceptance: Mapped[float] = mapped_column(Float(), nullable=True)
     demo: Mapped[bool] = mapped_column(Integer())
     hall_of_fame: Mapped[bool] = mapped_column(Integer())
+    sa_1: Mapped[bool] = mapped_column(Integer())
+    collab: Mapped[bool] = mapped_column(Integer())
 
 
 class YIHackInfo(Base):
@@ -78,27 +81,40 @@ Tables = {
 
 
 hack_difficulties = [
-    "Standard: Easy",
-    "Standard: Normal",
-    "Standard: Hard",
-    "Standard: Very Hard",
-    "Kaizo: Beginner",
-    "Kaizo: Intermediate",
-    "Kaizo: Expert",
-    "Tool-Assisted: Kaizo",
-    "Tool-Assisted: Pit",
-    "Misc.: Troll"
+    "Newcomer",
+    "Casual",
+    "Intermediate",
+    "Advanced",
+    "Expert",
+    "Master",
+    "Grandmaster"
 ]
 
+
 difficulty_lookup = {
-    "standard_easy": hack_difficulties[0],
-    "standard_normal": hack_difficulties[1],
-    "standard_hard": hack_difficulties[2],
-    "standard_very_hard": hack_difficulties[3],
-    "kaizo_beginner": hack_difficulties[4],
-    "kaizo_intermediate": hack_difficulties[5],
-    "kaizo_expert": hack_difficulties[6],
-    "tool-assisted_kaizo": hack_difficulties[7],
-    "tool-assisted_pit": hack_difficulties[8],
-    "misc._troll": hack_difficulties[9]
+    "newcomer": hack_difficulties[0],
+    "casual": hack_difficulties[1],
+    "intermediate": hack_difficulties[2],
+    "advanced": hack_difficulties[3],
+    "expert": hack_difficulties[4],
+    "master": hack_difficulties[5],
+    "grandmaster": hack_difficulties[6]
+}
+
+
+hack_types = [
+    "Standard",
+    "Kaizo",
+    "Puzzle",
+    "Tool-Assisted",
+    "Pit"
+]
+
+
+type_lookup = {
+    "standard": hack_types[0],
+    "kaizo": hack_types[1],
+    "puzzle": hack_types[2],
+    "tool-assisted": hack_types[3],
+    "pit": hack_types[4]
 }

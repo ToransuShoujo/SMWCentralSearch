@@ -9,16 +9,18 @@ def export_to_csv():
         return
     with open('results.csv', 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['ID', 'Title', 'Authors', 'Exits', 'Difficulty', 'Submissions', 'Earliest Submission',
+        writer.writerow(['ID', 'Title', 'Authors', 'Exits', 'Difficulty', 'Type', 'Submissions', 'Earliest Submission',
                          'Latest Submission', 'Acceptances', 'Earliest Acceptance', 'Latest Acceptance', 'Demo',
-                         'Hall of Fame'])
+                         'Hall of Fame', 'SA-1', 'Collab'])
         for result in results_list:
             formatted_authors = ', '.join(eval(result.authors))
             formatted_submissions = ', '.join(map(str, eval(result.submissions)))
             formatted_acceptances = ', '.join(map(str, eval(result.acceptances)))
+            formatted_types = ', '.join(map(str, eval(result.type)))
             list_to_write = [result.id, result.title, formatted_authors, result.exits, result.difficulty,
-                             formatted_submissions, timestamp_to_readable(result.earliest_submission),
+                             formatted_types, formatted_submissions, timestamp_to_readable(result.earliest_submission),
                              timestamp_to_readable(result.latest_submission), formatted_acceptances,
                              timestamp_to_readable(result.earliest_acceptance),
-                             timestamp_to_readable(result.latest_acceptance), result.demo, result.hall_of_fame]
+                             timestamp_to_readable(result.latest_acceptance), result.demo, result.hall_of_fame,
+                             result.sa_1, result.collab]
             writer.writerow(list_to_write)

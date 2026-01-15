@@ -36,3 +36,7 @@ pip install -r requirements.txt
 ```bash
 python ./main.py
 ```
+
+## Flags
+Here are the available flags that you can start the program with:
+1. -s, --skip-update: Skips the database update step.

@@ -18,6 +18,7 @@ def insert_smw_hacks(hacks):
                     authors=hack.authors,
                     exits=hack.exits,
                     difficulty=hack.difficulty,
+                    type=hack.type,
                     submissions=hack.submissions,
                     earliest_submission=hack.earliest_submission,
                     latest_submission=hack.latest_submission,
@@ -25,7 +26,9 @@ def insert_smw_hacks(hacks):
                     earliest_acceptance=hack.earliest_acceptance,
                     latest_acceptance=hack.latest_acceptance,
                     demo=hack.demo,
-                    hall_of_fame=hack.hall_of_fame
+                    hall_of_fame=hack.hall_of_fame,
+                    sa_1=hack.sa_1,
+                    collab=hack.collab
                 )
                 hacks_to_insert.append(hack_object)
             session.add_all(hacks_to_insert)
@@ -58,10 +61,13 @@ def search_hack(search_dict, game="SMW"):
     table = defines.Tables[game]
     query = select(table)
     difficulties = []
+    types = []
     results_list = []
 
     for key in search_dict.keys():
         value = search_dict.get(key)
+        if key == 'txt-id':
+            query = query.where(table.id == int(value))
         if key == 'txt-title':
             title_query = value
             # Default is False, so we test for True
@@ -87,9 +93,12 @@ def search_hack(search_dict, game="SMW"):
                 authors_query.insert(i, author)
             for author in authors_query:
                 query = query.where(table.authors.like(author))
-        elif key.startswith('listbox'):
-            difficulty = key[8:]
+        elif key.startswith('listbox-diff_'):
+            difficulty = key[13:].lower()
             difficulties.append(difficulty)
+        elif key.startswith('listbox-type_'):
+            hack_type = key[13:].lower()
+            types.append(hack_type)
         elif key == 'txt-exits':
             exit_operator = value[0]
             if exit_operator == '>':
@@ -104,10 +113,15 @@ def search_hack(search_dict, game="SMW"):
             query = query.where(table.demo == 1)
         elif key == 'bool-hall_of_fame':
             query = query.where(table.hall_of_fame == 1)
+        elif key == 'bool-sa_1':
+            query = query.where(table.sa_1 == 1)
+        elif key == 'bool-collab':
+            query = query.where(table.collab == 1)
         elif key.startswith('date'):
             date_property = key.split('-')[1]
             time = search_dict.get(f'txt-time-{date_property}')
             search_type = search_dict.get(f'radio-time-{date_property}')
+            print(date_property)
             datetime = datetime_management.dict_to_datetime(value, time)
             timestamp = datetime_management.convert_to_timestamp(datetime, "datetime")
             if date_property == 'before':

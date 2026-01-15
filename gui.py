@@ -8,6 +8,7 @@ import export_csv
 from datetime_management import datetime_to_dict
 
 listbox_difficulty_data = []
+listbox_type_data = []
 current_date = datetime.now().astimezone()
 current_time_zone = f"{current_date.isoformat()[-6:]} UTC"
 modified_items = []
@@ -22,6 +23,18 @@ def listbox_difficulty_callback(sender, app_data):
         dpg.bind_item_theme(sender, button_selected_theme)
     else:
         listbox_difficulty_data.remove(label)
+        dpg.bind_item_theme(sender, button_normal_theme)
+    item_modified_callback(sender)
+    return
+
+
+def listbox_type_callback(sender, app_data):
+    label = dpg.get_item_label(sender)
+    if label not in listbox_type_data:
+        listbox_type_data.append(label)
+        dpg.bind_item_theme(sender, button_selected_theme)
+    else:
+        listbox_type_data.remove(label)
         dpg.bind_item_theme(sender, button_normal_theme)
     item_modified_callback(sender)
     return
@@ -125,10 +138,17 @@ def create_main_window():
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Difficulty:  ")
-            with dpg.child_window(height=120, width=400, border=False) as custom_listbox:
+            with dpg.child_window(height=120, width=250, border=False) as custom_listbox:
                 for difficulty in defines.hack_difficulties:
-                    tag_difficulty = "listbox-" + difficulty.replace(" ", "_").replace(":", "").lower()
+                    tag_difficulty = "listbox-diff_" + difficulty.lower()
                     dpg.add_button(label=difficulty, tag=tag_difficulty, width=-1, callback=listbox_difficulty_callback)
+                dpg.bind_item_theme(custom_listbox, custom_listbox_theme)
+
+            dpg.add_text("Type:  ")
+            with dpg.child_window(height=120, width=250, border=False) as custom_listbox:
+                for hack_type in defines.hack_types:
+                    tag_type = "listbox-type_" + hack_type.lower()
+                    dpg.add_button(label=hack_type, tag=tag_type, width=-1, callback=listbox_type_callback)
                 dpg.bind_item_theme(custom_listbox, custom_listbox_theme)
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
@@ -136,6 +156,8 @@ def create_main_window():
             dpg.add_input_text(label="Exits", tag="txt-exits", width=100)
             dpg.add_checkbox(label="Demo?", tag="bool-demo")
             dpg.add_checkbox(label="Hall of fame?", tag="bool-hall_of_fame")
+            dpg.add_checkbox(label="SA-1?", tag="bool-sa_1")
+            dpg.add_checkbox(label="Collab?", tag="bool-collab")
 
         with dpg.group(horizontal=True, horizontal_spacing=20):
             dpg.add_text("Date before: ")
@@ -166,20 +188,6 @@ def create_main_window():
     dpg.set_primary_window("Primary Window", True)
 
 
-def create_prep_window():
-    with dpg.window(tag="win_prep", width=800, height=300):
-        with dpg.table(header_row=False):
-            for i in range(0, 5):
-                dpg.add_table_column()
-            for i in range(0, 7):
-                with dpg.table_row():
-                    for j in range(0, 5):
-                        if i == 3 and j == 2:
-                            dpg.add_text("Preparing, please wait...")
-                        else:
-                            dpg.add_text("            ")
-
-
 def create_results_window(results_list):
     global last_search_info
     last_search_info = results_list
@@ -191,13 +199,14 @@ def create_results_window(results_list):
             dpg.add_table_column(label='Title', init_width_or_weight=3)
             dpg.add_table_column(label='Author(s)', init_width_or_weight=2)
             dpg.add_table_column(label='Difficulty', init_width_or_weight=1)
+            dpg.add_table_column(label='Type', init_width_or_weight=1)
             dpg.add_table_column(label='Exits', init_width_or_weight=0.25)
             dpg.add_table_column(label='First Submitted', init_width_or_weight=2)
             dpg.add_table_column(label='First Accepted', init_width_or_weight=2)
             if len(results_list) > 0:
                 for i in range(0, len(results_list)):
                     with dpg.table_row():
-                        for j in range(0, 7):
+                        for j in range(0, 8):
                             if j == 0:
                                 dpg.add_text(results_list[i].id)
                             elif j == 1:
@@ -208,12 +217,18 @@ def create_results_window(results_list):
                             elif j == 3:
                                 dpg.add_text(results_list[i].difficulty)
                             elif j == 4:
-                                dpg.add_text(results_list[i].exits)
+                                type_list = eval(results_list[i].type)
+                                dpg.add_text(', '.join(type_list))
                             elif j == 5:
-                                dpg.add_text(datetime_management.timestamp_to_readable(results_list[i]
-                                                                                       .earliest_submission))
+                                dpg.add_text(results_list[i].exits)
                             elif j == 6:
                                 dpg.add_text(datetime_management.timestamp_to_readable(results_list[i]
-                                                                                       .earliest_acceptance))
+                                                                                       .earliest_submission))
+                            elif j == 7:
+                                if results_list[i].earliest_acceptance is None:
+                                    dpg.add_text("N/A")
+                                else:
+                                    dpg.add_text(datetime_management.timestamp_to_readable(results_list[i]
+                                                                                           .earliest_acceptance))
         dpg.add_button(label='Export to CSV', tag='btn_export_csv', callback=btn_export_csv_callback)
     return
